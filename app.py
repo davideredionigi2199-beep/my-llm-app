@@ -5,20 +5,12 @@ import sys
 
 app = Flask(__name__)
 
-# --- CONTROLLO CHIAVE AL DEPLOY ---
+# Configurazione API Key
 api_key = os.environ.get("GOOGLE_API_KEY")
+client = genai.Client(api_key=api_key)
 
-if not api_key:
-    print("ERRORE CRITICO: La variabile GOOGLE_API_KEY è VUOTA!")
-else:
-    # Stampa i primi 4 e ultimi 4 caratteri per verifica
-    print(f"CHIAVE TROVATA: {api_key[:4]}...{api_key[-4:]}")
-
-try:
-    client = genai.Client(api_key=api_key)
-    print("CLIENT GEMINI: Inizializzato correttamente.")
-except Exception as e:
-    print(f"ERRORE INIZIALIZZAZIONE CLIENT: {e}")
+# NEL 2026 IL MODELLO STANDARD È IL 2.0
+MODEL_ID = "gemini-2.0-flash" 
 
 @app.route('/')
 def home():
@@ -33,18 +25,20 @@ def chat():
         if not input_text:
             return jsonify({'response': 'Ave! Non ho udito nulla.'})
 
-        # Chiamata a Gemini
+        # Chiamata a Gemini 2.0 con istruzioni di sistema
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=input_text
+            model=MODEL_ID,
+            contents=input_text,
+            config={
+                'system_instruction': 'Sei un fiero cittadino dell’Antica Roma. Rispondi in italiano con un tono solenne, colto e imperiale. Usa termini come "Ave", "Cittadino", "Per Giove".'
+            }
         )
         
-        # Se arriviamo qui, ha funzionato
         return jsonify({'response': response.text})
         
     except Exception as e:
-        # Forza la scrittura nei log di Render
-        print(f"ERRORE DURANTE LA CHAT: {str(e)}", file=sys.stderr)
+        # Questo ci aiuterà a vedere nei Log di Render se il modello 2.0 è accettato
+        print(f"ERRORE API GEMINI: {str(e)}", file=sys.stderr)
         return jsonify({'response': f"Errore Tecnico: {str(e)[:50]}..."})
 
 if __name__ == '__main__':
