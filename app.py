@@ -1,16 +1,21 @@
 from flask import Flask, request, jsonify, render_template
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from deep_translator import GoogleTranslator
-from langdetect import detect # Nuova libreria per il rilevamento lingua
+import google.generativeai as genai
+import os
 
 app = Flask(__name__)
 
-# Configurazione del Chatbot
-model_name = "facebook/blenderbot-400M-distill"
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+# --- CONFIGURAZIONE GEMINI SICURA ---
+# Render leggerà la chiave dalla "cassaforte" (Environment Variables)
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
-conversation_history = []
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+else:
+    print("ERRORE: GOOGLE_API_KEY non trovata nelle variabili d'ambiente!")
+
+# Memoria della conversazione (formato Google)
+chat_session_history = []
 
 @app.route('/')
 def home():
@@ -18,57 +23,34 @@ def home():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    global conversation_history
+    global chat_session_history
     
     data = request.get_json()
     input_text = data.get('message', '')
     
-    # 1. RILEVAMENTO LINGUA
-    # Capisce se stai scrivendo in 'it' (italiano), 'en' (inglese), ecc.
+    if not input_text:
+        return jsonify({'response': 'Ave, non ho udito nulla.'})
+
+    # Manteniamo gli ultimi 10 scambi per la memoria
+    if len(chat_session_history) > 20:
+        chat_session_history = chat_session_history[-20:]
+    
     try:
-        user_lang = detect(input_text)
-    except:
-        user_lang = 'it' # Se inserisci solo numeri o punteggiatura, assume italiano
+        # Chiamata a Gemini: risponde direttamente in italiano, zero traduttori!
+        response = model.generate_content(chat_session_history + [{"role": "user", "parts": [input_text]}])
+        response_text = response.text.strip()
         
-    # 2. TRADUZIONE IN INGRESSO (Solo se non è inglese)
-    if user_lang != 'en':
-        input_text_en = GoogleTranslator(source='auto', target='en').translate(input_text)
-    else:
-        input_text_en = input_text # Se è già inglese, non fa nulla
+        # Aggiorniamo la cronologia
+        chat_session_history.append({"role": "user", "parts": [input_text]})
+        chat_session_history.append({"role": "model", "parts": [response_text]})
         
-    # 3. GESTIONE DELLA MEMORIA (Il fix per la coerenza!)
-    # Teniamo solo gli ultimi 4 elementi (ovvero le tue ultime 2 domande e le 2 risposte del bot)
-    if len(conversation_history) > 4:
-        conversation_history = conversation_history[-4:]
+        return jsonify({'response': response_text})
         
-    # 4. Preparazione del contesto (Blenderbot preferisce i doppi spazi)
-    history_string = "  ".join(conversation_history)
-    
-    # 5. Generazione risposta con parametri ottimizzati
-    inputs = tokenizer(history_string + "  " + input_text_en, return_tensors="pt")
-    
-    # max_new_tokens: impedisce al bot di dilungarsi troppo
-    # temperature=0.7: lo rende un po' più creativo ma senza farlo impazzire
-    outputs = model.generate(
-        **inputs, 
-        max_new_tokens=60, 
-        do_sample=True, 
-        temperature=0.7,
-        pad_token_id=tokenizer.eos_token_id
-    )
-    response_en = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
-    
-    # 6. Aggiornamento cronologia (Salviamo sempre il "pensiero" in inglese)
-    conversation_history.append(input_text_en)
-    conversation_history.append(response_en)
-    
-    # 7. TRADUZIONE IN USCITA (Torna alla tua lingua)
-    if user_lang != 'en':
-        final_response = GoogleTranslator(source='en', target=user_lang).translate(response_en)
-    else:
-        final_response = response_en
-        
-    return jsonify({'response': final_response})
+    except Exception as e:
+        print(f"Errore: {e}")
+        return jsonify({'response': 'Perdonami, i presagi sono oscuri. Riprova più tardi.'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # In locale usa la porta 5000, su Render userà quella assegnata dal sistema
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
