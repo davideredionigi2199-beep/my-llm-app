@@ -1,15 +1,24 @@
 from flask import Flask, request, jsonify, render_template
-from google import genai # Nuova libreria 2026
+from google import genai
 import os
+import sys
 
 app = Flask(__name__)
 
-# --- CONFIGURAZIONE NUOVO SDK GEMINI ---
+# --- CONTROLLO CHIAVE AL DEPLOY ---
 api_key = os.environ.get("GOOGLE_API_KEY")
-client = genai.Client(api_key=api_key)
-MODEL_ID = "gemini-1.5-flash"
 
-chat_session_history = []
+if not api_key:
+    print("ERRORE CRITICO: La variabile GOOGLE_API_KEY è VUOTA!")
+else:
+    # Stampa i primi 4 e ultimi 4 caratteri per verifica
+    print(f"CHIAVE TROVATA: {api_key[:4]}...{api_key[-4:]}")
+
+try:
+    client = genai.Client(api_key=api_key)
+    print("CLIENT GEMINI: Inizializzato correttamente.")
+except Exception as e:
+    print(f"ERRORE INIZIALIZZAZIONE CLIENT: {e}")
 
 @app.route('/')
 def home():
@@ -17,30 +26,27 @@ def home():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    global chat_session_history
-    data = request.get_json()
-    input_text = data.get('message', '')
-    
-    if not input_text:
-        return jsonify({'response': 'Ave, non ho udito nulla.'})
-
     try:
-        # Nuova sintassi 2026 per la generazione contenuto
+        data = request.get_json()
+        input_text = data.get('message', '')
+        
+        if not input_text:
+            return jsonify({'response': 'Ave! Non ho udito nulla.'})
+
+        # Chiamata a Gemini
         response = client.models.generate_content(
-            model=MODEL_ID,
-            contents=input_text,
-            config={'system_instruction': 'Sei un cittadino dell’Antica Roma. Rispondi in modo fiero e colto.'}
+            model="gemini-1.5-flash",
+            contents=input_text
         )
         
-        response_text = response.text
-        return jsonify({'response': response_text})
+        # Se arriviamo qui, ha funzionato
+        return jsonify({'response': response.text})
         
     except Exception as e:
-        # Questo scriverà l'errore REALE nei log di Render
-        print(f"ERRORE DETTAGLIATO GEMINI: {str(e)}")
-        return jsonify({'response': 'Perdonami, i presagi sono ancora oscuri.'})
+        # Forza la scrittura nei log di Render
+        print(f"ERRORE DURANTE LA CHAT: {str(e)}", file=sys.stderr)
+        return jsonify({'response': f"Errore Tecnico: {str(e)[:50]}..."})
 
 if __name__ == '__main__':
-    # Prende la porta da Render o usa la 5000 in locale
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
