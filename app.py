@@ -36,8 +36,9 @@ def chat():
         return jsonify({'response': response_text})
         
     except Exception as e:
-        print(f"Errore tecnico: {e}")
-        return jsonify({'response': 'Perdonami, i presagi sono oscuri. Verifica la tua API Key su Render.'})
+        # Questo scriverà l'errore REALE nei log di Render
+        print(f"ERRORE DETTAGLIATO GEMINI: {str(e)}")
+        return jsonify({'response': 'Perdonami, i presagi sono ancora oscuri.'})
 
 if __name__ == '__main__':
     # Prende la porta da Render o usa la 5000 in locale
