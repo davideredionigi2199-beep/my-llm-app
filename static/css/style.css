@@ -1,346 +1,217 @@
-/* General format */
+/* =========================================
+   STILE GENERALE E SFONDO
+========================================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  padding-left: 5em;
-  padding-right: 5em;
-  padding-top: 3em;
-
-  background-image: url("https://media.discordapp.net/attachments/993702831850786886/1117894163686510752/bgJC_copy.jpg");
-  /* background-image: url("https://images.unsplash.com/photo-1591311337241-cecfd26f1da1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2thdGVib2FyZGluZ3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"); */
-  background-repeat: no-repeat;
-
-  /* fit the entire background image */
-  background-size: 100% 100%;
-  background-position: center;
-}
-
-header {
-  margin-top: 30px;
-  height: 5px;
-  background-color: #ccc;
-  position: relative;
-}
-
-.color-block {
-  width: 100px;
+body, html {
+  width: 100%;
   height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #7B58E5;
-  animation: move-color 3s ease-in-out infinite;
+  font-family: 'Georgia', 'Times New Roman', serif; /* Stile classico romano */
+  overflow: hidden; /* Niente barre di scorrimento esterne */
+  /* Sfondo Lorica Segmentata (Armatura Romana) */
+  background: linear-gradient(135deg, #4A5054 0%, #8A95A5 50%, #4A5054 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* =========================================
+   STRUTTURA PRINCIPALE DELLA CHAT
+========================================= */
 main {
-  padding: 20px;
+  width: 95%;
+  max-width: 900px;
+  height: 90vh; /* Occupa il 90% dell'altezza dello schermo */
+  display: flex;
+  flex-direction: column;
 }
 
-footer {
-  padding-top: 30px;
-  padding-bottom: 20px;
-  color:  #333;
-  background-color: #ffffff;
-  border-top: 2px solid #ccc;
-  text-align: center;
-  position: relative;
-  font-size: larger;
-  font-weight: bold;
-}
-
-footer a {
-  color: #7B58E5;
-}
-/* ---------------- */
-
-
-
-
-/* ---------------- */
-/* Chatbot box head*/
+/* Contenitore della Chat */
 .chatbot {
-  max-width: 100em;
+  background-color: #F9F6EE; /* Bianco Marmo Travertino */
+  border: 4px solid #D4AF37; /* Oro Romano */
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
+/* =========================================
+   INTESTAZIONE (HEADER)
+========================================= */
 .chat-header {
-  color: rgb(0, 0, 0);
-  padding: 10px;
+  background-color: #800020; /* Porpora Imperiale */
+  padding: 20px;
+  text-align: center;
+  border-bottom: 3px solid #D4AF37;
 }
 
 .chat-header h1 {
+  color: #D4AF37;
   margin: 0;
-  margin-bottom: 10px;
-  /* text-align: center; */
-  color: #000000;
-  
-  /* Use a modern looking font */
-  font-family: 'Roboto', sans-serif;
-  font-size: 3em;
+  font-size: 32px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
 }
 
 .header-sub-text {
+  background-color: #F9F6EE;
+  text-align: center;
   padding: 10px;
+  border-bottom: 2px solid #D4AF37;
 }
 
-.chat-header h5 {
-  display: inline-block;
-  text-align: center;
+.header-sub-text p {
+  color: #4A5054;
   margin: 0;
-  text-align: center;
-  color: #333;
-}
-select {
-  display: inline-block;
-  font-size: 16px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #333;
-}
-
-select:hover {
-  background-color: #f2f2f2;
-}
-
-option {
   font-size: 14px;
-  padding: 5px;
-  background-color: #fff;
-  color: #333;
+  font-style: italic;
 }
 
-option:hover {
-  background-color: #ccc;
-  color: #fff;
+.header-sub-text a.purple {
+  color: #800020;
+  font-weight: bold;
 }
 
-
-.chat-form {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  }
-
-.chat-form textarea[type="text"] {
+/* =========================================
+   AREA DEI MESSAGGI
+========================================= */
+#messages-container {
   flex-grow: 1;
-  margin-right: 10px;
-  padding-left: 10px;
-  padding-top: 10px;
-  border-radius: 7px;
-  border: 1px solid darkgray;
-  font-size: 15px;
-  font-family: 'Inter', sans-serif;
-  font-style: normal;
-  resize: both;
-  overflow: auto;
-  box-sizing: border-box;
-  height: auto;
-  max-height: 2.4em;
-  min-width: 200px;
-  max-width: 1500px;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #F9F6EE; /* Marmo */
+  display: flex;
+  flex-direction: column;
 }
 
-*:focus {
-  outline: 0;
+/* Stile dei fumetti della chat */
+.message {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  opacity: 0; /* Partono invisibili per l'animazione */
+  transform: translateY(20px);
+  animation: fade-in-bottom 0.5s forwards; /* La tua animazione di comparsa! */
 }
 
-#recordButton{
-  background-color: blue;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  min-width: 150px;
-  max-width: 200px;
-  display: none;
-}
-
-.chat-form button[type="submit"] {
-  background-color: #0891B2;
-  color: white;
-  font-size: 1em;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  min-width: 4em;
-  max-width: 4em;
-  max-height: 2.4em;
-}
-/* ---------------- */
-
-
-
-
-/* ---------------- */
-/* Modification if the screen size is small */
-@media only screen and (max-width:1200px){
-  .chat-form button[type="submit"] {
-  min-width: 50px;
-  max-width: 100px;
-}
-}
-/* ---------------- */
-
-
-
-
-/* ---------------- */
-/* Chatbot box message format*/
-.chat-messages {
-  height: 400px;
-  overflow-y: scroll;
-  padding: 10px;
+.message img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 15px;
+  border: 2px solid #D4AF37;
+  background-color: white;
 }
 
 .message p {
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin: 0;
+  max-width: 80%;
+  font-size: 16px;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.user img {
-  float: right; /* float the image to the left */
-  margin-left: 10px; /* add some space between image and paragraph */
-  margin-right: 10px;
-  max-width: 30%; /* adjust the width of the image */
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+/* Colori specifici: Utente (Oro) */
+.message.user p {
+  background-color: #D4AF37;
+  color: #800020;
+  border-bottom-left-radius: 0;
+  font-weight: bold;
 }
 
-.error img {
-  float: left; /* float the image to the left */
-  margin-right: 10px; /* add some space between image and paragraph */
-  margin-left: 10px;
-  max-width: 30%; /* adjust the width of the image */
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 40px;
-  opacity: 0;
-  transform: translateY(100%);
-  animation: fade-in-bottom 0.5s forwards;
+/* Colori specifici: Bot (Porpora) */
+.message.aibot p {
+  background-color: #800020;
+  color: #F9F6EE;
+  border-bottom-left-radius: 0;
 }
 
-.aibot img {
-  float: left; /* float the image to the left */
-  margin-right: 10px; /* add some space between image and paragraph */
-  margin-left: 10px;
-  max-width: 30%; /* adjust the width of the image */
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 40px;
-  opacity: 0;
-  transform: translateY(100%);
-  animation: fade-in-bottom 0.5s forwards;
+/* Colori specifici: Errore */
+.message.error p {
+  background-color: #4A5054;
+  color: #D4AF37;
+  border: 2px solid red;
 }
 
-.user p {
-  max-width: 70%;
-  background-color: #f5f2fd;
-  color: #272727;
-  border: 1px solid #ccc;
-  align-self: flex-start;
-  float: right;
-  text-align: left;
+/* =========================================
+   BARRA DI INPUT E BOTTONE (OTTIMIZZATI MOBILE)
+========================================= */
+#message-form {
+  display: flex;
+  gap: 10px; /* Crea uno spazio elastico tra barra e bottone */
+  padding: 15px;
+  background-color: #F9F6EE;
+  border-top: 3px solid #D4AF37;
+  width: 100%;
 }
 
-.chatbot {
-  color: #272727;
-  align-self: flex-end;
+#message-input {
+  flex-grow: 1; /* Occupa tutto lo spazio libero */
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #8A95A5;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: white;
+  font-family: inherit;
+  resize: none;
+  height: 55px;
 }
 
-.aibot p {
-  max-width: 70%;
-  background-color: #ffffff;
-  color: #272727;
-  border: 1px solid #ccc;
-  align-self: flex-end;
-  float: left;
-  text-align: left;
-  opacity: 0;
-  transform: translateY(100%);
-  animation: fade-in-bottom 0.5s forwards;
+#message-input:focus {
+  outline: none;
+  border-color: #800020;
+  box-shadow: 0 0 5px #800020;
 }
 
-
-.error p {
-  max-width: 70%;
-  background-color: #ff9393;
-  color: #272727;
-  border: 1px solid #ccc;
-  align-self: flex-end;
-  float: left;
-  text-align: left;
-  opacity: 0;
-  transform: translateY(100%);
-  animation: fade-in-bottom 0.5s forwards;
+#message-form button {
+  flex-shrink: 0; /* Regola fondamentale: impedisce al bottone di schiacciarsi su mobile */
+  background-color: #800020;
+  color: #D4AF37;
+  border: 2px solid #D4AF37;
+  border-radius: 6px;
+  padding: 0 20px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.clear {
-  clear: both;
+#message-form button:hover {
+  background-color: #D4AF37;
+  color: #800020;
 }
 
+/* =========================================
+   ANIMAZIONI
+========================================= */
 .loading-animation {
-  float: left; /* float the image to the left */
-  margin-right: 10px; /* add some space between image and paragraph */
-  margin-left: 10px;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
+  border: 4px solid #D4AF37;
+  border-top: 4px solid #800020;
   border-radius: 50%;
-  border: 5px solid #ccc;
-  border-top-color: #3498db;
-  animation: spin 1s ease-in-out infinite;
+  animation: spin 1s linear infinite;
+  margin: 10px auto;
 }
+
 .loading-text {
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #8ad0ff;
-  color: #272727;
-  border: 1px solid #ccc;
-  align-self: flex-end;
-  float: left;
-  text-align: left;
-}
-
-.spacer {
-  min-height: 37em;
-}
-
-.purple {
-  color: #7B58E5;
-}
-/* ---------------- */
-
-
-
-
-/* ---------------- */
-/* Animation */
-@keyframes move-color {
-  0% {
-    left: 0%;
-  }
-  50% {
-    left: 50%
-  }
-  100% {
-    left: calc(100% - 100px)
-  }
+  text-align: center;
+  color: #800020;
+  font-weight: bold;
+  font-style: italic;
 }
 
 @keyframes fade-in-bottom {
@@ -350,12 +221,7 @@ option:hover {
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
 }
-
