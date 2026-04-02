@@ -1,6 +1,35 @@
 /* =========================================
    STILE GENERALE E SFONDO
 ========================================= */
+/* 1. RESET UNIVERSALE: Costringe tutto a calcolare i bordi verso l'interno */
+* {
+    box-sizing: border-box !important;
+}
+
+/* 2. BLOCCO SCORRIMENTO ORIZZONTALE: Impedisce alla pagina di "sbordare" a destra */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden; 
+}
+
+/* 3. ASSICURIAMO CHE IL FORM STIA NEI LIMITI */
+#message-form {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    margin: 0;
+    gap: 10px;
+}
+
+#message-input {
+    flex-grow: 1;
+    min-width: 0; /* Questo impedisce all'input di forzare l'allargamento della barra */
+}
+
 * {
   margin: 0;
   padding: 0;
