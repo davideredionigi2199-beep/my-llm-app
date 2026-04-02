@@ -1,256 +1,81 @@
-/* =========================================
-   STILE GENERALE E SFONDO
-========================================= */
-/* 1. RESET UNIVERSALE: Costringe tutto a calcolare i bordi verso l'interno */
+/* 1. Reset e Altezza Totale */
 * {
-    box-sizing: border-box !important;
+    box-sizing: border-box;
 }
 
-/* 2. BLOCCO SCORRIMENTO ORIZZONTALE: Impedisce alla pagina di "sbordare" a destra */
 html, body {
+    height: 100%; /* Forza l'altezza del telefono */
     margin: 0;
     padding: 0;
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden; 
+    overflow: hidden; /* Impedisce rimbalzi strani */
+    background-color: #fdfae6; /* Il tuo colore crema */
 }
 
-/* 3. ASSICURIAMO CHE IL FORM STIA NEI LIMITI */
-#message-form {
+/* 2. Contenitore principale come una "Colonna" */
+.chatbot {
     display: flex;
+    flex-direction: column;
+    height: 100vh; /* 100% dell'altezza visibile */
     width: 100%;
-    max-width: 100%;
-    padding: 10px;
-    margin: 0;
-    gap: 10px;
+    border: 5px solid #a3862d; /* Bordo dorato */
 }
 
+/* 3. Header e Copyright (fissi in alto) */
+.chat-header, .header-sub-text {
+    flex-shrink: 0; /* Non si schiacciano */
+    text-align: center;
+    background-color: #8b0000; /* Rosso pompeiano */
+    color: #a3862d;
+    padding: 5px;
+}
+.header-sub-text {
+    background-color: #fdfae6;
+    font-size: 0.8rem;
+    border-bottom: 2px solid #a3862d;
+}
+
+/* 4. AREA MESSAGGI (Prende tutto lo spazio centrale) */
+#messages-container {
+    flex-grow: 1; /* Occupa tutto lo spazio libero */
+    overflow-y: auto; /* Permette di scorrere i messaggi */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 5. FORM DI INVIO (Fisso in basso) */
+#message-form {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 8px;
+    background-color: #fdfae6;
+    border-top: 2px solid #a3862d;
+}
+
+/* L'input ora sembra una vera barra di chat */
 #message-input {
     flex-grow: 1;
-    min-width: 0; /* Questo impedisce all'input di forzare l'allargamento della barra */
+    height: 45px; /* Altezza fissa comoda per il pollice */
+    border: 2px solid #a3862d;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px; /* Evita lo zoom di sistema su iPhone */
+    resize: none;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body, html {
-  width: 100%;
-  height: 100%;
-  font-family: 'Georgia', 'Times New Roman', serif; /* Stile classico romano */
-  overflow: hidden; /* Niente barre di scorrimento esterne */
-  /* Sfondo Lorica Segmentata (Armatura Romana) */
-  background: linear-gradient(135deg, #4A5054 0%, #8A95A5 50%, #4A5054 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* =========================================
-   STRUTTURA PRINCIPALE DELLA CHAT
-========================================= */
-main {
-  width: 95%;
-  max-width: 900px;
-  height: 90vh; /* Occupa il 90% dell'altezza dello schermo */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Contenitore della Chat */
-.chatbot {
-  background-color: #F9F6EE; /* Bianco Marmo Travertino */
-  border: 4px solid #D4AF37; /* Oro Romano */
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* =========================================
-   INTESTAZIONE (HEADER)
-========================================= */
-.chat-header {
-  background-color: #800020; /* Porpora Imperiale */
-  padding: 20px;
-  text-align: center;
-  border-bottom: 3px solid #D4AF37;
-}
-
-.chat-header h1 {
-  color: #D4AF37;
-  margin: 0;
-  font-size: 32px;
-  text-transform: uppercase;
-  letter-spacing: 4px;
-}
-
-.header-sub-text {
-  background-color: #F9F6EE;
-  text-align: center;
-  padding: 10px;
-  border-bottom: 2px solid #D4AF37;
-}
-
-.header-sub-text p {
-  color: #4A5054;
-  margin: 0;
-  font-size: 14px;
-  font-style: italic;
-}
-
-.header-sub-text a.purple {
-  color: #800020;
-  font-weight: bold;
-}
-
-/* =========================================
-   AREA DEI MESSAGGI
-========================================= */
-#messages-container {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 20px;
-  background-color: #F9F6EE; /* Marmo */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Stile dei fumetti della chat */
-.message {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: flex-start;
-  opacity: 0; /* Partono invisibili per l'animazione */
-  transform: translateY(20px);
-  animation: fade-in-bottom 0.5s forwards; /* La tua animazione di comparsa! */
-}
-
-.message img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  margin-right: 15px;
-  border: 2px solid #D4AF37;
-  background-color: white;
-}
-
-.message p {
-  padding: 12px 18px;
-  border-radius: 8px;
-  margin: 0;
-  max-width: 80%;
-  font-size: 16px;
-  line-height: 1.4;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Colori specifici: Utente (Oro) */
-.message.user p {
-  background-color: #D4AF37;
-  color: #800020;
-  border-bottom-left-radius: 0;
-  font-weight: bold;
-}
-
-/* Colori specifici: Bot (Porpora) */
-.message.aibot p {
-  background-color: #800020;
-  color: #F9F6EE;
-  border-bottom-left-radius: 0;
-}
-
-/* Colori specifici: Errore */
-.message.error p {
-  background-color: #4A5054;
-  color: #D4AF37;
-  border: 2px solid red;
-}
-
-/* =========================================
-   BARRA DI INPUT E BOTTONE (OTTIMIZZATI MOBILE)
-========================================= */
-#message-form {
-  display: flex;
-  gap: 10px; /* Crea uno spazio elastico tra barra e bottone */
-  padding: 15px;
-  background-color: #F9F6EE;
-  border-top: 3px solid #D4AF37;
-  width: 100%;
-}
-
-#message-input {
-  flex-grow: 1; /* Occupa tutto lo spazio libero */
-  width: 100%;
-  padding: 15px;
-  border: 2px solid #8A95A5;
-  border-radius: 6px;
-  font-size: 16px;
-  background-color: white;
-  font-family: inherit;
-  resize: none;
-  height: 55px;
-}
-
-#message-input:focus {
-  outline: none;
-  border-color: #800020;
-  box-shadow: 0 0 5px #800020;
-}
-
+/* Il bottone quadrato e centrato */
 #message-form button {
-  flex-shrink: 0; /* Regola fondamentale: impedisce al bottone di schiacciarsi su mobile */
-  background-color: #800020;
-  color: #D4AF37;
-  border: 2px solid #D4AF37;
-  border-radius: 6px;
-  padding: 0 20px;
-  font-size: 24px;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#message-form button:hover {
-  background-color: #D4AF37;
-  color: #800020;
-}
-
-/* =========================================
-   ANIMAZIONI
-========================================= */
-.loading-animation {
-  width: 30px;
-  height: 30px;
-  border: 4px solid #D4AF37;
-  border-top: 4px solid #800020;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 10px auto;
-}
-
-.loading-text {
-  text-align: center;
-  color: #800020;
-  font-weight: bold;
-  font-style: italic;
-}
-
-@keyframes fade-in-bottom {
-  to {
-    opacity: 1;
-    transform: translateY(0%);
-  }
-}
-
-@keyframes spin { 
-  0% { transform: rotate(0deg); } 
-  100% { transform: rotate(360deg); } 
+    width: 50px;
+    height: 45px;
+    background-color: #8b0000;
+    color: #a3862d;
+    border: 2px solid #a3862d;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

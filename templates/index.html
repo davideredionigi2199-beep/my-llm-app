@@ -1,39 +1,37 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Chatbot - Supyourself</title>
     <meta name="author" content="Supyourself">
     
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
   </head>
   
   <body>
-    <main>  
-      <div class="chatbot">
-        
-        <div class="chat-header">
-          <h1>My LLM</h1>
-        </div>
-        
-        <div class="header-sub-text">
-          <p>Copyright © 2026 - Created by Supyourself, financed by Naspi <a class="purple">❤</a></p>
-        </div>
-
-        <div id="messages-container"></div>
-        
-        <form id="message-form">
-          <textarea id="message-input" placeholder="Scrivi un messaggio al tuo oracolo..."></textarea>
-          <button type="submit">➤</button> 
-        </form>
-        
+    <div class="chatbot">
+      
+      <header class="chat-header">
+        <h1>MY LLM</h1>
+      </header>
+      
+      <div class="header-sub-text">
+        <p>Copyright © 2026 - Created by Supyourself, financed by Naspi <a class="purple">❤</a></p>
       </div>
-    </main>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=2"></script>
+      <div id="messages-container"></div>
+      
+      <form id="message-form">
+        <textarea id="message-input" placeholder="Scrivi un messaggio al tuo oracolo..." rows="1"></textarea>
+        <button type="submit">➤</button> 
+      </form>
+      
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}?v=3"></script>
   </body>
 </html>
