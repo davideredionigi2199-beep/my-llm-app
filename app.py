@@ -9,9 +9,7 @@ app = Flask(__name__)
 api_key = os.environ.get("GOOGLE_API_KEY")
 client = genai.Client(api_key=api_key)
 
-# PROVIAMO IL NOME COMPLETO (Sintassi ufficiale 2026)
-# Se questo fallisce, prova "gemini-1.5-flash-latest"
-MODEL_ID = "models/gemini-1.5-flash" 
+MODEL_ID = "gemini-2.5-flash"
 
 @app.route('/')
 def home():
