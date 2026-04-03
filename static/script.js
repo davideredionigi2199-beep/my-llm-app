@@ -1,57 +1,93 @@
-// --- CONFIGURAZIONE VOCALE ---
+// --- ELEMENTI DELLA PAGINA ---
+const form = document.getElementById('message-form');
+const input = document.getElementById('message-input');
+const container = document.getElementById('messages-container');
 const micBtn = document.getElementById('mic-btn');
-const inputField = document.getElementById('message-input');
 
-// 1. SPEECH TO TEXT (Il bot ci ascolta)
+// --- 1. FUNZIONE PER AGGIUNGERE MESSAGGI A SCHERMO ---
+function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.classList.add('message', sender);
+    
+    // Stile veloce per distinguere i messaggi (se il CSS non bastasse)
+    div.style.padding = "10px";
+    div.style.margin = "5px";
+    div.style.borderRadius = "10px";
+    div.style.maxWidth = "80%";
+    div.style.alignSelf = sender === 'user' ? "flex-end" : "flex-start";
+    div.style.backgroundColor = sender === 'user' ? "#a3862d" : "#8b0000";
+    div.style.color = sender === 'user' ? "white" : "#fdfae6";
+
+    div.innerText = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight; // Scroll automatico in basso
+}
+
+// --- 2. TEXT TO SPEECH (Il bot parla) ---
+function speak(text) {
+    if (!window.speechSynthesis) return;
+    // Pulizia rapida del testo (toglie emoji per la lettura)
+    const cleanText = text.replace(/[\u1000-\uFFFF]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'it-IT';
+    window.speechSynthesis.speak(utterance);
+}
+
+// --- 3. SPEECH TO TEXT (Il bot ascolta) ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
     recognition.lang = 'it-IT';
-    recognition.continuous = false;
 
     micBtn.addEventListener('click', () => {
         recognition.start();
         micBtn.classList.add('recording');
+        micBtn.innerText = "Listening...";
     });
 
     recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        inputField.value = transcript;
+        input.value = transcript;
         micBtn.classList.remove('recording');
-        // Opzionale: invia automaticamente il messaggio appena finito di parlare
-        // document.getElementById('message-form').dispatchEvent(new Event('submit'));
+        micBtn.innerText = "🎤";
+        // Invia automaticamente dopo aver parlato
+        form.dispatchEvent(new Event('submit'));
     };
 
-    recognition.onspeechend = () => {
-        recognition.stop();
+    recognition.onerror = () => {
         micBtn.classList.remove('recording');
+        micBtn.innerText = "🎤";
     };
-} else {
-    micBtn.style.display = 'none'; // Nascondi se il browser non lo supporta
 }
 
-// 2. TEXT TO SPEECH (Il bot ci parla)
-function speak(text) {
-    // Rimuoviamo eventuali emoji o caratteri strani per una lettura pulita
-    const cleanText = text.replace(/[\u1000-\uFFFF]/g, ''); 
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'it-IT';
-    utterance.rate = 1.0; // Velocità solenne
-    utterance.pitch = 0.9; // Tono leggermente più profondo (più autoritario)
-    
-    window.speechSynthesis.speak(utterance);
-}
+// --- 4. GESTIONE INVIO MESSAGGIO (Il "Ponte" con Python) ---
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
 
-// 3. INTEGRAZIONE NELLA CHAT
-// Nel tuo codice dove ricevi la risposta dal server (dentro fetch.then):
-// Esempio:
-/*
-   fetch('/chat', ...)
-   .then(response => response.json())
-   .then(data => {
-       addMessage(data.response, 'bot');
-       speak(data.response); // <--- AGGIUNGI QUESTA RIGA QUI
-   });
-*/  
+    // Aggiungi bolla utente
+    addMessage(message, 'user');
+    input.value = '';
+
+    try {
+        // CHIAMATA AL SERVER RENDER
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        if (!response.ok) throw new Error("Errore server");
+
+        const data = await response.json();
+        
+        // Aggiungi bolla bot e parla
+        addMessage(data.response, 'bot');
+        speak(data.response);
+
+    } catch (error) {
+        console.error("Errore:", error);
+        addMessage("L'oracolo è silente. Controlla la connessione.", 'bot');
+    }
+});
