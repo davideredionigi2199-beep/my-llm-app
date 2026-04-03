@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Chatbot - Supyourself</title>
-    <meta name="author" content="Supyourself">
+    <title>Chatbot - Davide R.D.</title>
+    <meta name="author" content="Davide R.D.">
     
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=101">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=102">
   </head>
   
   <body>
@@ -20,21 +20,22 @@
       </header>
       
       <div class="header-sub-text">
-        <p>Copyright © 2026 - Created by Supyourself, financed by Naspi <a class="purple">❤</a></p>
+        <p>Copyright © 2026 - Created by Davide R.D.</p>
+        <p style="font-size: 0.6rem; margin-top: 4px; opacity: 0.85; line-height: 1.2;">
+          <strong>Disclaimer:</strong> Il presente applicativo è un progetto personale realizzato a fini strettamente didattici. I contenuti sono generati da un'Intelligenza Artificiale non supervisionata. L'autore non si assume alcuna responsabilità legale o morale per la correttezza, l'appropriatezza o l'affidabilità delle risposte fornite.
+        </p>
       </div>
 
       <div id="messages-container"></div>
       
       <form id="message-form">
         <button type="button" id="mic-btn">🎤</button> 
-        
         <textarea id="message-input" placeholder="Scrivi o parla all'oracolo..." rows="1"></textarea>
-        
         <button type="submit">➤</button> 
       </form>
       
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=101"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=102"></script>
   </body>
 </html>
