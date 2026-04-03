@@ -4,36 +4,50 @@ const input = document.getElementById('message-input');
 const container = document.getElementById('messages-container');
 const micBtn = document.getElementById('mic-btn');
 
-// --- VARIABILE DI STATO (La "memoria" del modo di input) ---
+// --- STATO ---
 let isVoiceMode = false;
 
-// --- 1. AGGIUNGI MESSAGGI ---
+// --- 1. FUNZIONE MESSAGGI (OTTIMIZZATA PER CSS) ---
 function addMessage(text, sender) {
     const div = document.createElement('div');
+    // Applica le classi 'message' e 'user' o 'bot'
     div.classList.add('message', sender);
+    
+    // Inseriamo il testo
     div.innerText = text;
+    
     container.appendChild(div);
+    
+    // Scroll automatico immediato verso l'ultimo messaggio
     container.scrollTop = container.scrollHeight;
 }
 
-// --- 2. TEXT TO SPEECH (Solo se richiesto) ---
+// --- 2. SINTESI VOCALE (IL BOT PARLA) ---
 function speak(text) {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel(); // Interrompe eventuali letture precedenti
-    const cleanText = text.replace(/[\u1000-\uFFFF]/g, '');
+    if (!('speechSynthesis' in window)) return;
+    
+    // Interrompe eventuali letture in corso prima di iniziare la nuova
+    window.speechSynthesis.cancel(); 
+    
+    const cleanText = text.replace(/[\u1000-\uFFFF]/g, ''); // Toglie emoji
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'it-IT';
+    utterance.pitch = 1.0;
+    utterance.rate = 1.0;
+    
     window.speechSynthesis.speak(utterance);
 }
 
-// --- 3. SPEECH TO TEXT (Microfono) ---
+// --- 3. RICONOSCIMENTO VOCALE (IL BOT ASCOLTA) ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
     recognition.lang = 'it-IT';
+    recognition.interimResults = false;
 
     micBtn.addEventListener('click', () => {
-        isVoiceMode = true; // <--- ATTIVIAMO LA MODALITÀ VOCALE
+        isVoiceMode = true; // Attiva la modalità "parlata"
         recognition.start();
         micBtn.classList.add('recording');
     });
@@ -43,43 +57,55 @@ if (SpeechRecognition) {
         input.value = transcript;
         micBtn.classList.remove('recording');
         
-        // Invia il form automaticamente dopo aver parlato
+        // Invia automaticamente il messaggio una volta trascritto
         form.dispatchEvent(new Event('submit'));
     };
 
     recognition.onerror = () => {
         micBtn.classList.remove('recording');
-        isVoiceMode = false; // Reset in caso di errore
+        isVoiceMode = false;
+    };
+    
+    recognition.onend = () => {
+        micBtn.classList.remove('recording');
     };
 }
 
-// --- 4. GESTIONE INVIO (Ponte con Python) ---
+// --- 4. GESTIONE INVIO (PONTE CON IL SERVER) ---
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
     const message = input.value.trim();
     if (!message) return;
 
+    // 1. Mostra il messaggio dell'utente a schermo
     addMessage(message, 'user');
     input.value = '';
 
     try {
+        // 2. Chiamata al server Python
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: message })
         });
 
+        if (!response.ok) throw new Error('Errore di rete');
+
         const data = await response.json();
+        
+        // 3. Mostra la risposta del bot
         addMessage(data.response, 'bot');
 
-        // --- IL CONTROLLO SMART ---
+        // 4. Se avevi usato il microfono, il bot risponde a voce
         if (isVoiceMode) {
             speak(data.response);
-            isVoiceMode = false; // Resetta per il prossimo messaggio (di default sarà testo)
+            isVoiceMode = false; // Torna in modalità testo per il prossimo giro
         }
 
     } catch (error) {
-        addMessage("L'oracolo è silente.", 'bot');
+        console.error('Chat Error:', error);
+        addMessage("L'oracolo ha perso il contatto con gli dèi (Errore di connessione).", 'bot');
         isVoiceMode = false;
     }
 });

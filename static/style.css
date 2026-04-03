@@ -7,10 +7,10 @@
 }
 
 html, body {
-    height: 100dvh; /* Altezza dinamica per mobile */
+    height: 100dvh;
     width: 100vw;
     background-color: #fdfae6;
-    overflow: hidden; /* Impedisce alla pagina di ballare */
+    overflow: hidden;
 }
 
 /* --- CONTENITORE PRINCIPALE --- */
@@ -22,9 +22,9 @@ html, body {
     border: 6px solid #a3862d; /* Bordo dorato massiccio */
 }
 
-/* --- HEADER ROSSO (Il tuo marchio) --- */
+/* --- HEADER ROSSO --- */
 .chat-header {
-    background-color: #8b0000; /* Rosso Pompeiano */
+    background-color: #8b0000;
     padding: 15px;
     text-align: center;
     border-bottom: 2px solid #a3862d;
@@ -32,7 +32,7 @@ html, body {
 }
 
 .chat-header h1 {
-    color: #a3862d; /* Scritta dorata */
+    color: #a3862d;
     font-size: 1.8rem;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -47,76 +47,38 @@ html, body {
     flex-shrink: 0;
 }
 
-/* --- AREA MESSAGGI (Centrale) --- */
+/* --- AREA MESSAGGI (MOLTO IMPORTANTE) --- */
 #messages-container {
     flex-grow: 1;
     overflow-y: auto;
     padding: 15px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: column; /* I messaggi vanno in verticale */
+    gap: 12px; /* Spazio tra una bolla e l'altra */
     background-color: #fdfae6;
 }
 
-/* --- BARRA DI INPUT (In basso) --- */
-#message-form {
-    display: flex;
-    padding: 12px;
-    gap: 10px;
-    background-color: #fdfae6;
-    border-top: 3px solid #a3862d;
-    flex-shrink: 0;
+/* Stile base della bolla (Comune a entrambi) */
+.message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 1rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    border: 1px solid rgba(163, 134, 45, 0.3); /* Bordino dorato leggero */
 }
 
-#message-input {
-    flex-grow: 1;
-    height: 50px;
-    border: 2px solid #a3862d;
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 16px; /* Fondamentale per evitare lo zoom su iPhone */
-    background-color: white;
-    resize: none;
+/* UTENTE: Verde Alloro, allineato a DESTRA */
+.user {
+    align-self: flex-end;
+    background-color: #2d5a27;
+    color: white;
+    border-bottom-right-radius: 4px; /* Effetto "punta" a destra */
 }
 
-#message-form button {
-    width: 60px;
-    height: 50px;
+/* BOT: Rosso Pompeiano, allineato a SINISTRA */
+.bot {
+    align-self: flex-start;
     background-color: #8b0000;
-    color: #a3862d;
-    border: 2px solid #a3862d;
-    border-radius: 8px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-#mic-btn {
-    width: 50px;
-    height: 50px;
-    background-color: #fdfae6; /* Sfondo chiaro */
-    color: #8b0000; /* Icona rossa */
-    border: 2px solid #a3862d;
-    border-radius: 50%; /* Tondo */
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.3s;
-}
-
-/* Effetto quando il microfono è attivo (registra) */
-#mic-btn.recording {
-    background-color: #8b0000;
-    color: #fdfae6;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 0, 0, 0.7); }
-    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(139, 0, 0, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 0, 0, 0); }
-}
+    color: #f
