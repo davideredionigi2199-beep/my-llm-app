@@ -109,4 +109,24 @@ form.addEventListener('submit', async (e) => {
         // 3. Mostra la risposta del bot con la sua icona
         addMessage(data.response, 'bot');
 
-        // 4. Se è stata usata la voce, l'oracolo risponde
+        // 4. Se è stata usata la voce, l'oracolo risponde a voce
+        if (isVoiceMode) {
+            speak(data.response);
+            isVoiceMode = false; // Reset per il prossimo messaggio
+        }
+
+    } catch (error) {
+        console.error('Chat Error:', error);
+        addMessage("L'oracolo è temporaneamente offline. Riprova tra poco.", 'bot');
+        isVoiceMode = false;
+    }
+});
+
+// --- 5. TRUCCO PER INVIARE PREMENDO 'INVIO' SULLA TASTIERA ---
+input.addEventListener('keydown', function(e) {
+    // Se l'utente preme Invio e NON sta tenendo premuto Shift (che serve per andare a capo)
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Evita che si crei un "a capo" vuoto nella barra
+        form.dispatchEvent(new Event('submit')); // Fa partire il messaggio
+    }
+});
