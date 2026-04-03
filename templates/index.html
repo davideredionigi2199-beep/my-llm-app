@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=100">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=101">
   </head>
   
   <body>
@@ -25,17 +25,16 @@
 
       <div id="messages-container"></div>
       
-    <form id="message-form">
-      <button type="button" id="mic-btn">🎤</button> 
-    
-      <textarea id="message-input" placeholder="Parla con l'oracolo..." rows="1"></textarea>
-    
-      <button type="submit">➤</button> 
-    </form>
-      
+      <form id="message-form">
+        <button type="button" id="mic-btn">🎤</button> 
+        
+        <textarea id="message-input" placeholder="Scrivi o parla all'oracolo..." rows="1"></textarea>
+        
+        <button type="submit">➤</button> 
+      </form>
       
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=100"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=101"></script>
   </body>
 </html>
