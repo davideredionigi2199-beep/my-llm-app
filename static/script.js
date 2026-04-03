@@ -1,84 +1,57 @@
-// --- CONFIGURAZIONE INIZIALE ---
-const messagesContainer = document.getElementById('messages-container');
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message-input');
+// --- CONFIGURAZIONE VOCALE ---
+const micBtn = document.getElementById('mic-btn');
+const inputField = document.getElementById('message-input');
 
-// Funzione per aggiungere un messaggio alla chat
-const addMessage = (message, role, imgSrc) => {
-    const messageElement = document.createElement('div');
-    const textElement = document.createElement('p');
-    messageElement.className = `message ${role}`;
+// 1. SPEECH TO TEXT (Il bot ci ascolta)
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT';
+    recognition.continuous = false;
+
+    micBtn.addEventListener('click', () => {
+        recognition.start();
+        micBtn.classList.add('recording');
+    });
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        inputField.value = transcript;
+        micBtn.classList.remove('recording');
+        // Opzionale: invia automaticamente il messaggio appena finito di parlare
+        // document.getElementById('message-form').dispatchEvent(new Event('submit'));
+    };
+
+    recognition.onspeechend = () => {
+        recognition.stop();
+        micBtn.classList.remove('recording');
+    };
+} else {
+    micBtn.style.display = 'none'; // Nascondi se il browser non lo supporta
+}
+
+// 2. TEXT TO SPEECH (Il bot ci parla)
+function speak(text) {
+    // Rimuoviamo eventuali emoji o caratteri strani per una lettura pulita
+    const cleanText = text.replace(/[\u1000-\uFFFF]/g, ''); 
     
-    const imgElement = document.createElement('img');
-    // Usiamo percorsi relativi semplici: funzionano meglio su Render
-    imgElement.src = imgSrc; 
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'it-IT';
+    utterance.rate = 1.0; // Velocità solenne
+    utterance.pitch = 0.9; // Tono leggermente più profondo (più autoritario)
     
-    messageElement.appendChild(imgElement);
-    textElement.innerText = message;
-    messageElement.appendChild(textElement);
-    messagesContainer.appendChild(messageElement);
-    
-    // Div di pulizia per il layout float
-    const clearDiv = document.createElement("div");
-    clearDiv.style.clear = "both";
-    messagesContainer.appendChild(clearDiv);
-    
-    // Auto-scroll verso il basso
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-};
+    window.speechSynthesis.speak(utterance);
+}
 
-// Funzione principale per inviare il messaggio
-const sendMessage = async (message) => {
-    // 1. Mostra il messaggio dell'utente
-    addMessage(message, 'user', '/static/user.jpeg');
-    
-    // 2. Crea l'animazione di caricamento
-    const loadingElement = document.createElement('div');
-    loadingElement.className = 'loading-animation';
-    const loadingText = document.createElement('p');
-    loadingText.className = 'loading-text';
-    loadingText.innerText = 'L\'Oracolo sta consultando i presagi...';
-    
-    messagesContainer.appendChild(loadingElement);
-    messagesContainer.appendChild(loadingText);
-
-    try {
-        // 3. Chiamata al server Flask
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message })
-        });
-
-        const data = await response.json();
-        
-        // 4. Rimuovi animazione caricamento
-        loadingElement.remove();
-        loadingText.remove();
-
-        // 5. Gestione risposta o errore
-        if (data.response) {
-            addMessage(data.response, 'aibot', '/static/Bot_logo.png');
-        } else {
-            addMessage("Perdonami, i fili del destino si sono intrecciati male.", 'error', '/static/Bot_logo.png');
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        loadingElement.remove();
-        loadingText.remove();
-        addMessage("Errore di connessione col server imperiale.", 'error', '/static/Bot_logo.png');
-    }
-};
-
-// Gestore dell'invio modulo
-messageForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const message = messageInput.value.trim();
-    if (message !== '') {
-        messageInput.value = '';
-        await sendMessage(message);
-    }
-});
+// 3. INTEGRAZIONE NELLA CHAT
+// Nel tuo codice dove ricevi la risposta dal server (dentro fetch.then):
+// Esempio:
+/*
+   fetch('/chat', ...)
+   .then(response => response.json())
+   .then(data => {
+       addMessage(data.response, 'bot');
+       speak(data.response); // <--- AGGIUNGI QUESTA RIGA QUI
+   });
+*/  
