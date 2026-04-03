@@ -7,18 +7,29 @@ const micBtn = document.getElementById('mic-btn');
 // --- STATO ---
 let isVoiceMode = false;
 
-// --- 1. FUNZIONE MESSAGGI (OTTIMIZZATA PER CSS) ---
+// --- 1. FUNZIONE MESSAGGI (CON ICONE E STRUTTURA DINAMICA) ---
 function addMessage(text, sender) {
     const div = document.createElement('div');
-    // Applica le classi 'message' e 'user' o 'bot'
     div.classList.add('message', sender);
-    
-    // Inseriamo il testo
-    div.innerText = text;
-    
+
+    // Creazione dell'Avatar
+    const img = document.createElement('img');
+    img.classList.add('message-icon');
+    // Carica l'immagine corretta dalla cartella static
+    img.src = sender === 'user' ? "/static/user.jpeg" : "/static/Bot_logo.png";
+    img.alt = sender;
+
+    // Contenitore del testo (per gestire il contrasto e il layout)
+    const textSpan = document.createElement('span');
+    textSpan.innerText = text;
+
+    // Assembliamo la bolla: Avatar + Testo
+    div.appendChild(img);
+    div.appendChild(textSpan);
+
     container.appendChild(div);
-    
-    // Scroll automatico immediato verso l'ultimo messaggio
+
+    // Scroll automatico verso l'ultimo messaggio
     container.scrollTop = container.scrollHeight;
 }
 
@@ -26,14 +37,15 @@ function addMessage(text, sender) {
 function speak(text) {
     if (!('speechSynthesis' in window)) return;
     
-    // Interrompe eventuali letture in corso prima di iniziare la nuova
+    // Interrompe letture precedenti per evitare sovrapposizioni
     window.speechSynthesis.cancel(); 
     
-    const cleanText = text.replace(/[\u1000-\uFFFF]/g, ''); // Toglie emoji
+    // Pulizia testo (toglie caratteri speciali/markdown per una lettura fluida)
+    const cleanText = text.replace(/[*#_]/g, '').replace(/[\u1000-\uFFFF]/g, ''); 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'it-IT';
     utterance.pitch = 1.0;
-    utterance.rate = 1.0;
+    utterance.rate = 1.1; // Leggermente più veloce per naturalezza
     
     window.speechSynthesis.speak(utterance);
 }
@@ -47,7 +59,7 @@ if (SpeechRecognition) {
     recognition.interimResults = false;
 
     micBtn.addEventListener('click', () => {
-        isVoiceMode = true; // Attiva la modalità "parlata"
+        isVoiceMode = true; // Attiva risposta vocale
         recognition.start();
         micBtn.classList.add('recording');
     });
@@ -78,12 +90,12 @@ form.addEventListener('submit', async (e) => {
     const message = input.value.trim();
     if (!message) return;
 
-    // 1. Mostra il messaggio dell'utente a schermo
+    // 1. Mostra il messaggio dell'utente con la sua icona
     addMessage(message, 'user');
     input.value = '';
 
     try {
-        // 2. Chiamata al server Python
+        // 2. Chiamata al server Python su Render
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -94,18 +106,7 @@ form.addEventListener('submit', async (e) => {
 
         const data = await response.json();
         
-        // 3. Mostra la risposta del bot
+        // 3. Mostra la risposta del bot con la sua icona
         addMessage(data.response, 'bot');
 
-        // 4. Se avevi usato il microfono, il bot risponde a voce
-        if (isVoiceMode) {
-            speak(data.response);
-            isVoiceMode = false; // Torna in modalità testo per il prossimo giro
-        }
-
-    } catch (error) {
-        console.error('Chat Error:', error);
-        addMessage("L'oracolo ha perso il contatto con gli dèi (Errore di connessione).", 'bot');
-        isVoiceMode = false;
-    }
-});
+        // 4. Se è stata usata la voce, l'oracolo risponde
